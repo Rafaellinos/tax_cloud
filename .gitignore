@@ -9,6 +9,7 @@ venv/
 # Local .terraform directories
 **/.terraform/*
 .terraform.lock*
+terraform
 
 # .tfstate files
 *.tfstate
