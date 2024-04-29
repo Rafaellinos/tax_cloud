@@ -47,7 +47,7 @@ resource "aws_ecs_task_definition" "tax_api" {
       memory = 128
       portMappings = [
         {
-          containerPort = 80
+          containerPort = 8080
           hostPort      = 8080
           protocol      = "tcp"
         }
@@ -65,7 +65,7 @@ resource "aws_ecs_task_definition" "prodesp_acl" {
       memory = 128
       portMappings = [
         {
-          containerPort = 80
+          containerPort = 8080
           hostPort      = 8081
           protocol      = "tcp"
         }
@@ -83,7 +83,7 @@ resource "aws_ecs_task_definition" "payment_acl" {
       memory = 128 
      portMappings = [
         {
-          containerPort = 80
+          containerPort = 8080
           hostPort      = 8082
           protocol      = "tcp"
         }
@@ -97,6 +97,32 @@ resource "aws_ecs_cluster" "my_cluster" {
   name = "tax-cluster"
 }
 
+# ECS SG
+resource "aws_security_group" "ecs_sg" {
+ name        = "ecs_sg"
+ description = "Security group for ALB allowing all in/out traffic"
+
+ ingress {
+    description = "Allow all inbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+ }
+
+ egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+ }
+
+ tags = {
+    Name = "ecs_sg"
+ }
+}
+
 # ECS Services
 resource "aws_ecs_service" "tax_api_service" {
   name            = "tax-api-service"
@@ -106,7 +132,7 @@ resource "aws_ecs_service" "tax_api_service" {
 
   network_configuration {
     subnets          = [aws_subnet.public_subnet_a.id]
-    security_groups  = []  # Specify security groups if needed
+    security_groups  = [aws_security_group.ecs_sg.id]  # Specify security groups if needed
     assign_public_ip = true
   }
 }
@@ -119,7 +145,7 @@ resource "aws_ecs_service" "prodesp_acl_service" {
 
   network_configuration {
     subnets          = [aws_subnet.public_subnet_b.id]
-    security_groups  = []  # Specify security groups if needed
+    security_groups  = [aws_security_group.ecs_sg.id]  # Specify security groups if needed
     assign_public_ip = true
   }
 }
@@ -132,7 +158,7 @@ resource "aws_ecs_service" "payment_acl_service" {
 
   network_configuration {
     subnets          = [aws_subnet.public_subnet_c.id]
-    security_groups  = []  # Specify security groups if needed
+    security_groups  = [aws_security_group.ecs_sg.id]  # Specify security groups if needed
     assign_public_ip = true
   }
 }
