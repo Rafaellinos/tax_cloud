@@ -48,7 +48,7 @@ resource "aws_ecs_task_definition" "tax_api" {
       portMappings = [
         {
           containerPort = 80
-          hostPort      = 80
+          hostPort      = 8080
           protocol      = "tcp"
         }
       ]
@@ -66,7 +66,7 @@ resource "aws_ecs_task_definition" "prodesp_acl" {
       portMappings = [
         {
           containerPort = 80
-          hostPort      = 80
+          hostPort      = 8081
           protocol      = "tcp"
         }
       ]
@@ -84,7 +84,7 @@ resource "aws_ecs_task_definition" "payment_acl" {
      portMappings = [
         {
           containerPort = 80
-          hostPort      = 80
+          hostPort      = 8082
           protocol      = "tcp"
         }
       ] 
