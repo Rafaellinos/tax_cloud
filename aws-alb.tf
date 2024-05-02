@@ -40,12 +40,12 @@ resource "aws_lb" "taxalb" {
 }
 
 # ALB Target Groups
-resource "aws_lb_target_group" "tax_api_target_group" {
-  name     = "tax-api-tg"
-  port     = 8080
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.my_vpc.id
-}
+# resource "aws_lb_target_group" "tax_api_target_group" {
+#   name     = "tax-api-tg"
+#   port     = 8080
+#   protocol = "HTTP"
+#   vpc_id   = aws_vpc.my_vpc.id
+# }
 
 resource "aws_lb_target_group" "prodesp_acl_target_group" {
   name     = "prodesp-acl-tg"
@@ -54,23 +54,23 @@ resource "aws_lb_target_group" "prodesp_acl_target_group" {
   vpc_id   = aws_vpc.my_vpc.id
 }
 
-resource "aws_lb_target_group" "payment_acl_target_group" {
-  name     = "payment-acl-tg"
-  port     = 8082
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.my_vpc.id
-}
+# resource "aws_lb_target_group" "payment_acl_target_group" {
+#   name     = "payment-acl-tg"
+#   port     = 8082
+#   protocol = "HTTP"
+#   vpc_id   = aws_vpc.my_vpc.id
+# }
 
 # ALB listener
-resource "aws_lb_listener" "tax_api_listener" {
-  load_balancer_arn = aws_lb.taxalb.arn
-  port              = 8080
-  protocol          = "HTTP"
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.tax_api_target_group.arn
-  }
-}
+# resource "aws_lb_listener" "tax_api_listener" {
+#   load_balancer_arn = aws_lb.taxalb.arn
+#   port              = 8080
+#   protocol          = "HTTP"
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.tax_api_target_group.arn
+#   }
+# }
 
 resource "aws_lb_listener" "prodesp_acl_listener" {
   load_balancer_arn = aws_lb.taxalb.arn
@@ -82,32 +82,32 @@ resource "aws_lb_listener" "prodesp_acl_listener" {
   }
 }
 
-resource "aws_lb_listener" "payment_acl_listener" {
-  load_balancer_arn = aws_lb.taxalb.arn
-  port              = 8082
-  protocol          = "HTTP"
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.payment_acl_target_group.arn
-  }
-}
+# resource "aws_lb_listener" "payment_acl_listener" {
+#   load_balancer_arn = aws_lb.taxalb.arn
+#   port              = 8082
+#   protocol          = "HTTP"
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.payment_acl_target_group.arn
+#   }
+# }
 
 #ALB Listener Rules
-resource "aws_lb_listener_rule" "tax_api_listener_rule" {
-  listener_arn = aws_lb_listener.tax_api_listener.arn
-  priority     = 100
+# resource "aws_lb_listener_rule" "tax_api_listener_rule" {
+#   listener_arn = aws_lb_listener.tax_api_listener.arn
+#   priority     = 100
 
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.tax_api_target_group.arn
-  }
+#   action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.tax_api_target_group.arn
+#   }
 
-  condition {
-    path_pattern {
-      values = ["/tax/*"]
-    }
-  }
-}
+#   condition {
+#     path_pattern {
+#       values = ["/tax/*"]
+#     }
+#   }
+# }
 
 resource "aws_lb_listener_rule" "prodesp_acl_listener_rule" {
   listener_arn = aws_lb_listener.prodesp_acl_listener.arn
@@ -125,19 +125,19 @@ resource "aws_lb_listener_rule" "prodesp_acl_listener_rule" {
   }
 }
 
-resource "aws_lb_listener_rule" "payment_acl_listener_rule" {
-  listener_arn = aws_lb_listener.payment_acl_listener.arn
-  priority     = 120
+# resource "aws_lb_listener_rule" "payment_acl_listener_rule" {
+#   listener_arn = aws_lb_listener.payment_acl_listener.arn
+#   priority     = 120
 
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.payment_acl_target_group.arn
-  }
+#   action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.payment_acl_target_group.arn
+#   }
 
-  condition {
-    path_pattern {
-      values = ["/payment/*"]
-    }
-  }
-}
+#   condition {
+#     path_pattern {
+#       values = ["/payment/*"]
+#     }
+#   }
+# }
 
