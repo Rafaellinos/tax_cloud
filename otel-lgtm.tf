@@ -6,6 +6,7 @@ variable "otel_lgtm_image" {
 # ECS terraform
 resource "aws_ecs_task_definition" "otel_td" {
   family                   = "otel"
+  network_mode             = "awsvpc"
   container_definitions   = jsonencode([
     {
       name  = "otel_task_def"
@@ -16,16 +17,6 @@ resource "aws_ecs_task_definition" "otel_td" {
         {
           containerPort = 3000
           hostPort      = 3000
-          protocol      = "tcp"
-        },
-        {
-          containerPort = 4318
-          hostPort      = 4318
-          protocol      = "tcp"
-        },
-        {
-          containerPort = 4317
-          hostPort      = 4317
           protocol      = "tcp"
         }
       ]
@@ -41,12 +32,12 @@ resource "aws_ecs_service" "otel_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [aws_subnet.public_subnet_b.id]
+    subnets          = [aws_subnet.public_subnet_a.id]
     security_groups  = [aws_security_group.ecs_sg.id]  # Specify security groups if needed
     assign_public_ip = true
   }
   depends_on = [
     aws_ecs_task_definition.otel_td,
-    aws_service_discovery_private_dns_namespace.otel_namespace
+    aws_ecs_cluster.my_cluster
   ]
 }

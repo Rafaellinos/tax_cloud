@@ -13,55 +13,48 @@ provider "aws" {
 
 # VPC and Subnets
 resource "aws_vpc" "my_vpc" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  
+}
+
+resource "aws_subnet" "private_subnet_a" {
+  vpc_id                  = aws_vpc.my_vpc.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "us-east-1a"
+  #map_public_ip_on_launch = false
+}
+
+resource "aws_subnet" "private_subnet_b" {
+  vpc_id                  = aws_vpc.my_vpc.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "us-east-1b"
+  #map_public_ip_on_launch = false
+}
+
+resource "aws_subnet" "private_subnet_c" {
+  vpc_id                  = aws_vpc.my_vpc.id
+  cidr_block              = "10.0.3.0/24"
+  availability_zone       = "us-east-1c"
+  #map_public_ip_on_launch = false
 }
 
 resource "aws_subnet" "public_subnet_a" {
   vpc_id                  = aws_vpc.my_vpc.id
-  cidr_block              = "10.0.1.0/24"
+  cidr_block              = "10.0.4.0/24"
   availability_zone       = "us-east-1a"
-  map_public_ip_on_launch = false
+  #map_public_ip_on_launch = false
 }
 
-resource "aws_subnet" "public_subnet_b" {
-  vpc_id                  = aws_vpc.my_vpc.id
-  cidr_block              = "10.0.2.0/24"
-  availability_zone       = "us-east-1b"
-  map_public_ip_on_launch = false
-}
-
-resource "aws_subnet" "public_subnet_c" {
-  vpc_id                  = aws_vpc.my_vpc.id
-  cidr_block              = "10.0.3.0/24"
-  availability_zone       = "us-east-1c"
-  map_public_ip_on_launch = false
-}
-
-# ECS Task Definitions
-#resource "aws_ecs_task_definition" "tax_api" {
-#  family                   = "TAX-API"
-#  container_definitions   = jsonencode([
-#    {
-#      name  = "taxApi"
-#      image = var.docker_image
-#      memory = 128
-#      portMappings = [
-#        {
-#          containerPort = 8080
-#          hostPort      = 8080
-#          protocol      = "tcp"
-#        }
-#      ]
-#    }
-#  ])
-#}
 
 resource "aws_ecs_task_definition" "prodesp_acl_td" {
   family                   = "PRODESP-ACL"
+  network_mode             = "awsvpc"
   container_definitions   = jsonencode([
     {
       name  = "prodespAcl"
-      image = "nerociffer/prodesp-tributo:0.0.3"
+      image = "nerociffer/prodesp-tributo:0.0.7"
       cpu   = 256
       memory = 512
       portMappings = [
@@ -69,39 +62,12 @@ resource "aws_ecs_task_definition" "prodesp_acl_td" {
           containerPort = 8081
           hostPort      = 8081
           protocol      = "tcp"
-        },
-        {
-          containerPort = 4317
-          hostPort      = 4317
-          protocol      = "tcp"
-        },
-        {
-          containerPort = 4318
-          hostPort      = 4318
-          protocol      = "tcp"
         }
       ]
     }
   ])
 }
 
-#resource "aws_ecs_task_definition" "payment_acl" {
-#  family                   = "PAYMENT-ACL"
-#  container_definitions   = jsonencode([
-#    {
-#      name  = "paymentAcl"
-#      image = var.docker_image
-#      memory = 128 
-#     portMappings = [
-#        {
-#          containerPort = 8080
-#          hostPort      = 8082
-#          protocol      = "tcp"
-#        }
-#      ] 
-#    }
-#  ])
-#}
 
 # ECS Cluster
 resource "aws_ecs_cluster" "my_cluster" {
@@ -134,19 +100,6 @@ resource "aws_security_group" "ecs_sg" {
  }
 }
 
-# ECS Services
-#resource "aws_ecs_service" "tax_api_service" {
-#  name            = "tax-api-service"
-#   cluster         = aws_ecs_cluster.my_cluster.id
-#   task_definition = aws_ecs_task_definition.tax_api.arn
-#   desired_count   = 1
-
-#   network_configuration {
-#     subnets          = [aws_subnet.public_subnet_a.id]
-#     security_groups  = [aws_security_group.ecs_sg.id]  # Specify security groups if needed
-#     assign_public_ip = true
-#   }
-# }
 
 resource "aws_ecs_service" "prodesp_acl_service" {
   name            = "prodesp-acl-service"
@@ -156,27 +109,15 @@ resource "aws_ecs_service" "prodesp_acl_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [aws_subnet.public_subnet_b.id]
+    subnets          = [aws_subnet.public_subnet_a.id]
     security_groups  = [aws_security_group.ecs_sg.id]  # Specify security groups if needed
     assign_public_ip = true
   }
 
   depends_on = [
     aws_ecs_task_definition.prodesp_acl_td,
-    aws_ecs_service.otel_service
+    aws_ecs_cluster.my_cluster
   ]
 }
 
-# resource "aws_ecs_service" "payment_acl_service" {
-#   name            = "payment-acl-service"
-#   cluster         = aws_ecs_cluster.my_cluster.id
-#   task_definition = aws_ecs_task_definition.payment_acl.arn
-#   desired_count   = 1
-
-#   network_configuration {
-#     subnets          = [aws_subnet.public_subnet_c.id]
-#     security_groups  = [aws_security_group.ecs_sg.id]  # Specify security groups if needed
-#     assign_public_ip = true
-#   }
-# }
 

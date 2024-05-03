@@ -1,0 +1,23 @@
+
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  LocalPort:
+    Type: Number
+    Default: 3033 # Default port
+
+Resources:
+  TaxProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: tax_processor_function.lambda_handler
+      Runtime: python3.12
+      CodeUri: .
+      Events:
+        Process:
+          Type: Api
+          Properties:
+            Path: /event
+            Method: post
+
