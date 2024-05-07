@@ -4,7 +4,7 @@ resource "aws_ecs_task_definition" "tax_service_td" {
   container_definitions   = jsonencode([
     {
       name  = "taxapi"
-      image = "nerociffer/taxapi:0.0.1"
+      image = "nerociffer/taxapi:latest"
       cpu   = 256
       memory = 512
       portMappings = [

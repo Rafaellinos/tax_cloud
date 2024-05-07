@@ -54,7 +54,7 @@ resource "aws_ecs_task_definition" "prodesp_acl_td" {
   container_definitions   = jsonencode([
     {
       name  = "prodespAcl"
-      image = "nerociffer/prodesp-tributo:0.0.7"
+      image = "nerociffer/prodesp-tributo:latest"
       cpu   = 256
       memory = 512
       portMappings = [

@@ -29,7 +29,6 @@ resource "aws_lb" "taxalb" {
   name               = "taxalb"
   internal           = false
   load_balancer_type = "application"
-  #client_keep_alive  = 3600
   security_groups    = [aws_security_group.alb_sg.id]
   subnets            = [
     aws_subnet.public_subnet_a.id,
